@@ -31,6 +31,14 @@ public class Ngram {
         this.feature_extractor = new FeatureExtractor(n, weight_size);
     }
     
+    public Ngram(final int n, final int weight_size, final Sentence sentence)
+    {
+        this.n = n;
+        this.weight_size = weight_size;
+        this.classifier = new LogLinear(LookupTable.token_dict.size(), weight_size);
+        this.feature_extractor = new FeatureExtractor(n, weight_size, sentence);
+    }
+    
     public void train(final ArrayList<Sentence> sentencelist)
     {
         for (int i=0; i<sentencelist.size(); ++i) train(sentencelist.get(i));
@@ -57,9 +65,11 @@ public class Ngram {
             predicted_labels[i] = o_word.form;
             
             classifier.updateWeights(LookupTable.token_array.indexOf(o_word.form), feature, scores);            
+
+            if (i % 1000 == 0 && i != 0) System.out.print(i + " ");        
         }
         
-        System.out.println("Accuracy: " + correct/total);
+        System.out.println("\nAccuracy: " + correct/total);
     }
 
     private int predict(final double[] scores)

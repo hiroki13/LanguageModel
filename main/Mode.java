@@ -20,7 +20,7 @@ public class Mode {
     
     public OptionParser optionparser;
     public String trainfile;
-    public int iteration, weight_size, prune;
+    public int iteration, weight_size, prune, n;
     public ArrayList<Sentence> trainsentence;
     
     
@@ -31,9 +31,10 @@ public class Mode {
 
     public void setParameter()
     {
-        weight_size = optionparser.getInt("weight", 1000);
-        iteration = optionparser.getInt("iter", 10);
+        weight_size = optionparser.getInt("weight", 10000);
+        iteration = optionparser.getInt("iter", 20);
         prune = optionparser.getInt("prune", 100000);
+        n = optionparser.getInt("n", 2);
     }    
     
     public void execute() throws Exception
@@ -47,9 +48,11 @@ public class Mode {
             
         System.out.println(String.format("Train Sents: %d\n", trainsentence.size()));
         
-        final Ngram ngram = new Ngram(3, weight_size);
-        iteration = 20;
-        for (int i=0; i<iteration; ++i) ngram.train(trainsentence);                        
+//        final Ngram ngram = new Ngram(n, weight_size);
+        final Ngram ngram = new Ngram(n, weight_size, trainsentence.get(0));
+
+        for (int i=0; i<iteration; ++i)
+            ngram.train(trainsentence);                        
     }
         
 }

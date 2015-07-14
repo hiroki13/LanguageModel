@@ -18,6 +18,7 @@ public class FeatureExtractor {
 
     final int weight_size;
     int n, k;
+    int[][] cache;
     
     public FeatureExtractor(final int n, final int weight_size)
     {
@@ -25,10 +26,30 @@ public class FeatureExtractor {
         this.n = n;
     }
 
+    public FeatureExtractor(final int n, final int weight_size, final Sentence sentence)
+    {
+        this.weight_size = weight_size;
+        this.n = n;
+        this.cache = new int[sentence.size()][];
+    }
+/*
     public int[] extractFeature (final Sentence sentence, final int target, final String[] predicted_tags)
     {
         final String[] feature = instantiateFeature(sentence.tokens, target, predicted_tags);
         final int[] encoded_feature = encodeFeature(feature);
+        return encoded_feature;
+    }
+*/        
+    public int[] extractFeature (final Sentence sentence, final int target, final String[] predicted_tags)
+    {
+        int[] encoded_feature = cache[target];
+        
+        if (encoded_feature == null) {
+            final String[] feature = instantiateFeature(sentence.tokens, target, predicted_tags);
+            encoded_feature = encodeFeature(feature);
+            cache[target] = encoded_feature;
+        }
+        
         return encoded_feature;
     }
         
@@ -37,13 +58,13 @@ public class FeatureExtractor {
         k = 0;
         final String[] feature = new String[n];
 
-        for(int i=target; i>target-n; --i){
+        for(int i=target-1; i>target-n-1; --i){
             if (i == target) {
                 final Token f = tokens.get(i);
                 feature[k++] = i-target + "_" + f.form;
             }
             else if (i < 0) {
-                feature[k++] = i-target + "__PAD_";                
+                feature[k++] = i-target + "__PAD_";
             }
             else {
                 final String form = predicted_labels[i];
